@@ -47,8 +47,8 @@
                     fixed="right"
                     label="操作"
                     width="100">
-                <template slot-scope="book">
-                    <el-button @click="deleteBook(book)" type="text" size="small">删除</el-button>
+                <template slot-scope="books">
+                    <el-button @click="deleteBook(books.row)" type="text" size="small">删除</el-button>
                     <el-button @click="dialogVisible=true" type="text" size="small">编辑</el-button>
                 </template>
             </el-table-column>
@@ -67,9 +67,10 @@
         },
         data() {
             return {
-                url: "http://39.101.130.31:3000/books",
+                url: "http://localhost:3000/books",
                 book: {name: '', price: ''},
-                books: []
+                books: [],
+                dialogVisible: false
             }
         },
         methods: {
@@ -77,10 +78,19 @@
                 fetch(this.url, {
                     method: "POST",
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(this.book.json())
+                    body: JSON.stringify(this.book)
                 }).then(res => res.json())
                     .then(bk => this.books.push(bk))
             },
+            deleteBook(book) {
+                fetch(this.url + "/" + book._id, {method: "DELETE"})
+                    .then(res => res.json())
+                    .then(() => {
+                            let index = this.books.findIndex(bk => bk._id == book._id)
+                            this.books.splice(index, 1)
+                        }
+                    )
+            }
         },
         computed: {
             priceTotal() {
